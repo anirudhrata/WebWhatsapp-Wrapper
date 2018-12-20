@@ -1360,3 +1360,41 @@ window.WAPI.demoteParticipantAdminGroup = function(idGroup, idParticipant, done)
     })
     
 }
+
+
+window.WAPI._myserializeGroupObj = (obj) => {
+	if (obj == undefined) {
+		return null;
+	}
+
+
+	return Object.assign({
+		groupName: obj.__x_formattedTitle,
+		id: obj.id._serialized
+	});
+
+};
+
+
+
+
+
+window.WAPI.mygetAllGroups = function (done) {
+	const groups = window.Store.Chat.filter((chat) => chat.isGroup);
+	let output = [];
+	for (const i in groups) {
+		if (i == "remove"){
+			continue;
+		}
+		
+		const groupObj = groups[i];
+		let group = WAPI._myserializeGroupObj(groupObj);
+		if (group)
+			output.push(group);
+		
+	}
+	
+	if (done !== undefined) done(output);
+	return output;
+
+}
