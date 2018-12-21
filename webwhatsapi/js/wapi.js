@@ -1398,3 +1398,42 @@ window.WAPI.mygetAllGroups = function (done) {
 	return output;
 
 }
+
+
+window.WAPI.MYprocessMessageObj = function (messageObj, includeMe, includeNotifications) {
+    if (messageObj.isNotification) {
+        if (includeNotifications)
+            return WAPI._MYserializeMessageObj(messageObj);
+        else
+            return;
+        // System message
+        // (i.e. "Messages you send to this chat and calls are now secured with end-to-end encryption...")
+    } else if (messageObj.id.fromMe === false || includeMe) {
+        return WAPI._MYserializeMessageObj(messageObj);
+    }
+    return;
+};
+
+
+
+window.WAPI._MYserializeMessageObj = (obj) => {
+    if (obj == undefined) {
+        return null;
+    }
+
+    return Object.assign({
+        id: obj.id._serialized,
+        sender: obj["senderObj"] ? WAPI._serializeContactObj(obj["senderObj"]) : null,
+        t: obj["t"],
+        body: obj["body"],
+        isGroupMsg: obj.isGroupMsg,
+        isLink: obj.isLink,
+        isMMS: obj.isMMS,
+        isMedia: obj.isMedia,
+        isNotification: obj.isNotification,
+        isPSA: obj.isPSA,
+        type: obj.type,
+        chatId: obj.id.remote
+    });
+};
+
