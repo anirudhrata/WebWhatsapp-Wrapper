@@ -1433,7 +1433,10 @@ window.WAPI._MYserializeMessageObj = (obj) => {
         isNotification: obj.isNotification,
         isPSA: obj.isPSA,
         type: obj.type,
-        chatId: obj.id.remote
+        chatId: obj.id.remote,
+		clientURL: obj.clientUrl,
+		mediaKey: obj.mediaKey,
+		mimetype: obj.mimetype
     });
 };
 
@@ -1455,3 +1458,41 @@ window.WAPI.MYgetAllMessagesInChat = function (id, includeMe, includeNotificatio
     if (done !== undefined) done(output);
     return output;
 };
+
+
+
+window.WAPI.MYrefreshAllMedia = function (id) {
+	const chat = WAPI.getChat(id);
+	
+	const messages = chat.msgs.models;
+	for (const i in messages) {
+		if (i === "remove") {
+			continue;
+		}
+		
+		const messageObj = messages[i];
+		if (messageObj.isMedia) {
+			messageObj.resumeUpload();
+		}		
+	}	
+	return
+};
+
+window.WAPI.MYgetAllMediaMsgs = function (id, includeMe, includeNotifications) {
+	const chat = WAPI.getChat(id);
+    let output = [];
+    const messages = chat.msgs.models;
+    for (const i in messages) {
+        if (i === "remove") {
+            continue;
+        }
+        const messageObj = messages[i];
+		if (messageObj.isMedia) {
+			let message = WAPI.MYprocessMessageObj(messageObj, includeMe, includeNotifications)
+			if (message)
+				output.push(message);	
+		}
+	}
+	return output;
+};
+
